@@ -1,0 +1,21 @@
+Build a custom Skill, have an agent use it inside a multi-step loop, connect 1-2 MCP servers, and chain it all into one working workflow that runs end-to-end. Submit your PR link below. Worth 20% of your final grade.
+Submit a link to a new Pull Request that shows a real, running slice of agentic AI - not a mock.
+
+1. Build the pieces
+
+* A custom Skill scoped to ONE repeatable task in your capstone - not a vague catch-all
+* An agent that uses that Skill inside a multi-step loop: perceive -> reason -> act -> observe - not a single one-shot prompt
+* 1-2 MCP connectors your agent actually calls (web search, filesystem, GitHub, or whatever fits your problem)
+* Chain all of it into ONE workflow that runs end-to-end on a real input
+
+This is a required exercise proving you can operate at AI-Involvement. Whether your actual capstone should stay there, or a simpler prompt is the right call, is something you'll defend at the Capstone, for now, prove you can build it.
+
+2. Git discipline
+
+* At least 2 more commits since Assessment 1, each on its own branch, each merged via its own PR, no mega-commit
+* PR description includes proof it runs, a screenshot or short recording
+* Update BUILD_LOG.md: date, time spent, approx tokens used, what shipped
+
+3. Be honest about what broke
+
+* Note one thing that didn't work on the first try, and what you changed

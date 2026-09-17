@@ -1,0 +1,18 @@
+{
+  "deliverables": [
+    "Build a custom Skill scoped to one specific, repeatable task.",
+    "Implement an agent that utilizes the custom Skill within a multi-step loop (perceive -> reason -> act -> observe).",
+    "Integrate and actively call 1 to 2 MCP connectors within the agent workflow.",
+    "Chain the components into a single end-to-end workflow executing on real input without mocks.",
+    "Make at least two separate commits since Assessment 1, each created on its own branch and merged via its own PR.",
+    "Include proof of execution (a screenshot or short video recording) in the PR description.",
+    "Update BUILD_LOG.md with the date, time spent, approximate tokens used, and summary of what shipped.",
+    "Document one issue/failure encountered during development and the changes made to fix it.",
+    "Submit the link to the final Pull Request."
+  ],
+  "ambiguities": [
+    "It is unspecified where the note regarding 'one thing that didn't work on the first try' should be documented (e.g., within the PR description, BUILD_LOG.md, or commit message).",
+    "It is unclear whether the submission requires linking the single final PR that merges into main, or links to both PRs created during the git discipline workflow."
+  ],
+  "definition_of_done": "Done means submitting a Pull Request link for a functional, non-mock AI agent workflow built with a custom Skill, multi-step loop, and 1-2 active MCP connectors, backed by at least two merged branch commits, proof-of-run media, an updated BUILD_LOG.md, and documented troubleshooting notes."
+}
