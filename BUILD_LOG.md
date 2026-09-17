@@ -18,3 +18,9 @@ describes.
 - Tokens used (approx): ~40k
 - What shipped: Built a custom Skill (skills/decode-assignment/SKILL.md) scoped to decoding assignment text into deliverables/ambiguities/definition-of-done. Built an agent (mcp_agent/agent.py) that runs a real perceive -> reason -> act -> observe loop: it reads input.txt through a filesystem MCP server, calls Gemini using the Skill's instructions, validates the JSON response (retrying up to 3 times if invalid), writes output.json back through the same MCP server, and reads it back to confirm the write succeeded. Ran successfully end-to-end on the real Assignment 2 prompt text.
 - What broke: The agent initially crashed with "model models/gemini-2.5-flash is no longer available." Fixed by switching the model name to gemini-3.6-flash inside agent.py.
+
+## 2026-09-17 (2)
+- Time spent: ~20 minutes
+- Tokens used (approx): ~5k
+- What shipped: Added mcp_agent/README.md documenting how to run the agent end-to-end (setup, .env, running it, and the known model-name limitation), so the workflow from the previous commit is reproducible by anyone reviewing this repo.
+- What broke: Nothing broke in this commit - it's documentation only, written after confirming the agent already ran successfully in the previous commit.
