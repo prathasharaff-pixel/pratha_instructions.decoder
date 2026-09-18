@@ -1,8 +1,12 @@
-# Agent: decode-assignment loop
+# Agent: decode-assignment loop (batch/offline companion)
 
-This runs the decode-assignment Skill inside a real perceive -> reason -> act ->
-observe loop, using a filesystem MCP server to read the input and write/verify
-the output.
+This is a standalone batch tool, separate from the live web app in
+`../app.py`. It runs the decode-assignment Skill inside a real perceive ->
+reason -> act -> observe loop, using a filesystem MCP server to read the
+input and write/verify the output — useful for decoding a saved prompt file
+without starting the web server. The live app ports the same
+Skill-plus-retry-loop mechanism into its request path (see `../README.md`),
+but reads uploads through `../mcp_io.py` instead of this script.
 
 ## What it does
 
