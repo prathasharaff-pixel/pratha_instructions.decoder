@@ -1,2 +1,5 @@
 venv/
 .env
+mcp_workspace/uploads/
+__pycache__/
+*.pyc
