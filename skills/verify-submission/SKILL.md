@@ -1,56 +1,47 @@
 ---
 name: verify-submission
 description: >
-  Use this skill whenever given a checklist of deliverables (produced by the
-  decode-assignment skill) together with the text of a student's completed
-  submission. It checks each checklist item against the submission and
-  reports whether that item is present. Do NOT use this skill to grade
-  quality, correctness, or style — it only answers "is this requirement
-  present in the submission," never "is it any good." It is scoped to one
-  task only: completeness verification against a fixed checklist.
+  Use this skill when given (1) a checklist of deliverables from a decoded
+  assignment prompt, and (2) the text of a student's completed submission.
+  It checks, item by item, whether each checklist item is PRESENT in the
+  submission. Do NOT use this skill to judge quality, correctness, or grade
+  the work - only whether each required item appears to be there at all.
 ---
 
 # Verify Submission Skill
 
 ## Purpose
 
-Given two inputs — a **checklist** of deliverables and the **submission
-text** — produce, for every checklist item, a verdict of whether that item
-is present in the submission, plus a one-line reason.
+Given a list of deliverables (from the decode-assignment skill) and the raw
+text of a student's submission, determine for each deliverable whether it
+appears to be present in the submission.
 
-This is a completeness check, not a quality check. "Did you include a
-methodology section?" is in scope. "Is your methodology any good?" is out
-of scope — never comment on quality, correctness, depth, or style.
+This is a COMPLETENESS check, not a QUALITY check. "Did you include a
+methodology section?" is in scope. "Is your methodology any good?" is not.
 
 ## Process
 
-1. Read the full submission text once before judging any item — a
-   deliverable may be satisfied by content that appears far from where you'd
-   expect it (e.g. a "definition of done" satisfied in an intro paragraph).
-2. For each checklist item, independently decide `present` or `missing`.
-   Do not let one missing item bias the verdict on the next.
-3. A item counts as `present` if the submission plausibly addresses it, even
-   briefly. Do not require exhaustive or high-quality treatment — that is
-   explicitly out of scope.
-4. Write one short, literal reason per item citing what was or wasn't found.
-   Do not editorialize about quality ("this is done well/poorly").
-5. If the submission text is empty or clearly not a real submission, mark
-   every item `missing` with the reason stating that no submission content
-   was provided.
+1. Read the full submission text once before checking anything.
+2. For each deliverable in the checklist, look for direct evidence in the
+   submission that it exists (a section, a sentence, a file reference, etc.).
+3. Mark each item as one of: "present", "missing", or "unclear" (unclear =
+   there's a hint of it but not enough to confidently say either way).
+4. For every "missing" or "unclear" item, give a one-sentence reason citing
+   what you did or didn't find.
+5. Do not infer effort, correctness, or quality. A poorly-written methodology
+   section is still "present."
 
 ## Output contract
 
-Always respond with ONLY valid JSON, no preamble, no markdown code fences,
-in exactly this shape:
+Respond with ONLY valid JSON, no preamble, no markdown fences, in this shape:
 
 ```json
 {
   "results": [
-    {"item": "<checklist item text>", "status": "present", "reason": "..."},
-    {"item": "<checklist item text>", "status": "missing", "reason": "..."}
+    {"item": "...", "status": "present", "note": ""},
+    {"item": "...", "status": "missing", "note": "No mention of ... found anywhere in the submission."}
   ]
 }
 ```
 
-`status` must be exactly `"present"` or `"missing"` — no other values. There
-must be exactly one result per checklist item given, in the same order.
+status must be exactly one of: "present", "missing", "unclear".

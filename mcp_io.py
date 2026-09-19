@@ -1,7 +1,7 @@
 """Filesystem MCP helper shared by the live web app and the batch agent.
 
 Uploaded files are saved to disk, then read back through a real MCP
-filesystem server (not a direct open()) — the same mechanism proven out in
+filesystem server (not a direct open()) - the same mechanism proven out in
 mcp_agent/agent.py during Assessment 2.
 """
 

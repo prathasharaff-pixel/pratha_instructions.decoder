@@ -1,75 +1,76 @@
 # Assignment Decoder
 
-Assignment prompts are often dense or ambiguous — students miss requirements
+Assignment prompts are often dense or ambiguous - students miss requirements
 not from lack of effort, but from misreading the prompt itself. Assignment
-Decoder fixes this in two stages:
+Decoder fixes this in two stages.
 
-- **Stage 1 — Decode.** Paste an assignment prompt, or upload it as a file.
-  The app turns it into a checklist of concrete deliverables, a list of
-  genuinely ambiguous points, and a plain-language definition of done.
-- **Stage 2 — Verify.** Paste or upload your completed submission. The app
-  checks it against the Stage 1 checklist, item by item, and reports whether
-  each requirement is present — a completeness check, not a quality check.
-  ("Did you include a methodology section?", not "Is it any good?")
+## What it does
 
-Both stages run live in one browser tab — decode a prompt, then verify a
-draft against the exact checklist that came out of it.
+**Stage 1 - Decode:** Paste an assignment prompt (or upload it as a PDF,
+Word doc, or text file). The AI parses it into a checklist of every concrete
+deliverable, flags anything genuinely ambiguous instead of guessing, and
+states a plain-language definition of done.
 
-## How it's built
+**Stage 2 - Verify:** Paste your completed submission (or upload it). The
+app checks it against the Stage 1 checklist and marks each item present,
+missing, or unclear. This is a completeness check, not a quality or grading
+check - "did you include a methodology section?" not "is your methodology
+any good?"
 
-- **Skills** (`skills/decode-assignment`, `skills/verify-submission`) — each
-  scoped to exactly one task, with a strict output contract. The FastAPI
-  backend loads these files directly and sends them to the model as-is; the
-  Skill file is the single source of truth for both.
-- **Reason/retry loop** — every model call goes through
-  `run_skill_with_retry()` in `app.py`: call the model, validate the JSON
-  shape, retry up to 3 times on a bad or failed response, and fail with a
-  clean error only after exhausting attempts. This is the same
-  perceive-reason-act-observe discipline built for `mcp_agent/agent.py` in
-  the previous milestone, now running in the live request path instead of a
-  standalone script.
-- **Filesystem MCP** — when you upload a file (either stage), the app saves
-  it to `mcp_workspace/uploads/` and reads it back through a real MCP
-  filesystem server (`mcp_io.py`), not a plain `open()`. Pasted text skips
-  MCP since it's already in memory — there's nothing to read from disk.
-- **`mcp_agent/agent.py`** stays in the repo as a standalone batch/offline
-  companion tool (see [mcp_agent/README.md](mcp_agent/README.md)) — useful
-  for decoding a saved prompt file without spinning up the web app.
+## Choosing your own AI provider
 
-## Setup
+Click the gear icon (top right) to pick which AI provider powers the app:
+Google Gemini, OpenAI, Anthropic Claude, Groq, or Mistral. Paste your own
+API key there, or leave it blank to use the server's default key (set in
+.env). Your key is stored only in your browser, never on the server.
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+## How to run it yourself
 
-You'll also need [Node.js](https://nodejs.org) installed (for `npx`) — the
-MCP filesystem server is launched as a subprocess via `npx`.
+1. Clone this repo and `cd` into it.
+2. Create a Python virtual environment (Python 3.10+ required) and activate it:
+   python3 -m venv venv
+   source venv/bin/activate
+3. Install dependencies:
+   pip install fastapi uvicorn python-multipart pypdf python-docx python-dotenv google-genai anthropic openai mcp
+4. Node.js (with npx) must also be installed, since the app spins up a real
+   MCP filesystem server on every request (see below).
+5. Create a `.env` file in the repo root with at least one provider's key, for example:
+   GEMINI_API_KEY="your-key-here"
+6. Run the app:
+   uvicorn app:app --reload
+7. Open http://127.0.0.1:8000 in your browser.
 
-Create a `.env` file in the repo root (never committed):
+## How this incorporates Assessment 2
 
-```
-GEMINI_API_KEY="your-key-here"
-```
+Assessment 2 built a standalone agent (see mcp_agent/agent.py) that used a
+Skill and a filesystem MCP server inside a perceive-reason-act-observe loop.
 
-## Run it
+For this MVP, that mechanism is genuinely incorporated, not just referenced:
 
-```bash
-source venv/bin/activate
-uvicorn app:app --reload --port 8000
-```
-
-Open http://localhost:8000, paste or upload an assignment prompt, click
-**Decode it**, then paste or upload a completed submission and click
-**Verify against checklist**.
+- The decode-assignment Skill is reused directly (see
+  skills/decode-assignment/SKILL.md), and a new verify-submission Skill was
+  added for Stage 2 (see skills/verify-submission/SKILL.md).
+- The reasoning/retry loop from Assessment 2 (call the AI, validate the JSON
+  response, retry on failure) lives in app.py's call_ai_for_json function.
+- The filesystem MCP mechanism itself is reused via mcp_io.py: every request
+  (pasted text or an uploaded file, once its text is extracted) is written
+  to the MCP workspace and read back through a real MCP filesystem server
+  before being sent to the AI - the same perceive/observe round trip the
+  Assessment 2 agent used for input.txt and output.json. You can see this
+  happening for yourself in mcp_workspace/uploads/, where a new file appears
+  for every request.
+- If the MCP round trip ever fails (e.g. npx unavailable), the app falls
+  back to using the text it already has in memory rather than crashing -
+  MCP is a real, active step here, not a single point of failure.
 
 ## Known limitations
 
-- The model name (`gemini-3.6-flash`) is hardcoded in `app.py`. If Google
-  retires it, requests will fail after 3 retries with a 502 naming the
-  error — update the `MODEL` constant to whatever the error suggests.
-- File uploads are read as plain text (`.txt`, `.md`). A binary file (e.g. a
-  PDF) will fail with a clear 400 error rather than garbage output.
-- No accounts, no database — the Stage 1 checklist lives only in the
-  browser tab's memory for the duration of the session.
+- Each AI provider needs its own valid API key to actually work - there is
+  no universal key that unlocks all five.
+- Free tiers (especially Gemini's) can hit daily rate limits quickly during
+  testing. Groq's free tier has proven more generous in practice.
+- Model names are hardcoded per provider in PROVIDER_CONFIG inside app.py.
+  If a provider retires a model, update the "model" value there.
+- Every request spins up a fresh MCP filesystem server subprocess, adding
+  roughly 1-2 seconds of latency. This is a deliberate trade-off to keep
+  the Assessment 2 mechanism genuinely active, not a bug.
